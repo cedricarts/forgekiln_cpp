@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f2ec">
+  <meta name="description" content="ForgeKiln is an experimental C++ project exploring the foundations of a game-development engine, one understandable system at a time.">
+  <title>ForgeKiln — Built from the foundations up</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f4f2ec;
+      --card: #fffefa;
+      --ink: #20231f;
+      --muted: #666b63;
+      --line: #252821;
+      --accent: #b7f36b;
+      --accent-strong: #8dd63b;
+      --blue: #c9e8ee;
+      --pink: #f1d7ce;
+      --shadow: 5px 5px 0 var(--line);
+      --radius: 22px;
+      --nav-height: 68px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 28px; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    a:focus-visible, button:focus-visible { outline: 3px solid #326d7a; outline-offset: 4px; }
+    .wrap { width: min(1120px, calc(100% - 40px)); margin-inline: auto; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 24px 0; gap: 20px; }
+    .brand { display: inline-flex; align-items: center; gap: 11px; text-decoration: none; font-weight: 850; letter-spacing: -.045em; font-size: 1.2rem; }
+    .brand-mark { width: 36px; height: 36px; border: 2px solid var(--line); border-radius: 11px; background: var(--accent); box-shadow: 3px 3px 0 var(--line); display: grid; place-items: center; font-weight: 950; }
+    .top-link { font-size: .9rem; font-weight: 750; text-decoration: none; border: 2px solid var(--line); border-radius: 999px; padding: 9px 15px; background: var(--card); box-shadow: 3px 3px 0 var(--line); transition: transform .16s, box-shadow .16s; }
+    .top-link:hover { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--line); }
+    .hero { padding: 62px 0 82px; display: grid; grid-template-columns: 1.15fr .85fr; gap: 44px; align-items: center; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 9px; text-transform: uppercase; font-size: .75rem; letter-spacing: .12em; font-weight: 850; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent-strong); border: 1px solid var(--line); display: inline-block; }
+    h1 { font-size: clamp(3.2rem, 7vw, 6.4rem); line-height: .94; letter-spacing: -.085em; margin: 22px 0 25px; max-width: 720px; }
+    h1 span { display: block; }
+    .highlight { position: relative; z-index: 0; white-space: nowrap; }
+    .highlight::after { content: ""; position: absolute; left: 0; right: -.04em; bottom: .04em; height: .25em; background: var(--accent); border: 1.5px solid var(--line); z-index: -1; transform: rotate(-1.4deg); }
+    .hero-copy { max-width: 570px; font-size: clamp(1rem, 1.6vw, 1.18rem); color: #454a43; }
+    .actions { display: flex; flex-wrap: wrap; gap: 13px; margin-top: 28px; }
+    .btn { display: inline-flex; justify-content: center; align-items: center; gap: 10px; min-height: 48px; border: 2px solid var(--line); border-radius: 13px; padding: 11px 17px; font-size: .92rem; font-weight: 800; text-decoration: none; background: var(--accent); box-shadow: 4px 4px 0 var(--line); transition: transform .16s, box-shadow .16s; }
+    .btn.secondary { background: var(--card); }
+    .btn:hover { transform: translate(2px,2px); box-shadow: 2px 2px 0 var(--line); }
+    .hero-art { min-height: 360px; display: grid; place-items: center; position: relative; }
+    .blueprint { width: min(100%, 410px); aspect-ratio: 1 / .91; border: 2px solid var(--line); border-radius: 30px; background: var(--blue); box-shadow: 8px 8px 0 var(--line); position: relative; overflow: hidden; display: grid; place-items: center; }
+    .blueprint::before { content: ""; position: absolute; inset: 0; background-image: linear-gradient(to right, #20231f12 1px, transparent 1px), linear-gradient(to bottom, #20231f12 1px, transparent 1px); background-size: 25px 25px; }
+    .orbit { position: absolute; width: 72%; height: 42%; border: 2px solid var(--line); border-radius: 50%; transform: rotate(-35deg); }
+    .orbit.two { width: 62%; height: 72%; transform: rotate(45deg); }
+    .core { position: relative; width: 118px; height: 118px; border: 2px solid var(--line); border-radius: 27px; background: var(--accent); box-shadow: 6px 6px 0 var(--line); display: grid; place-items: center; transform: rotate(-6deg); }
+    .core svg { width: 67px; height: 67px; }
+    .tag { position: absolute; z-index: 2; padding: 8px 12px; border: 2px solid var(--line); border-radius: 11px; background: var(--card); box-shadow: 3px 3px 0 var(--line); font-size: .77rem; font-weight: 850; }
+    .tag.one { top: 12%; left: 5%; transform: rotate(-5deg); }
+    .tag.two { right: 4%; top: 29%; transform: rotate(4deg); }
+    .tag.three { bottom: 11%; left: 15%; transform: rotate(3deg); }
+    .section { padding: 60px 0; }
+    .section-head { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 27px; }
+    .kicker { font-size: .74rem; text-transform: uppercase; letter-spacing: .13em; font-weight: 850; color: var(--muted); margin: 0 0 9px; }
+    h2 { font-size: clamp(2rem, 4vw, 3.3rem); line-height: 1.04; letter-spacing: -.065em; margin: 0; }
+    .section-intro { max-width: 430px; margin: 0; color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .panel { border: 2px solid var(--line); border-radius: var(--radius); background: var(--card); padding: 23px; box-shadow: var(--shadow); }
+    .panel-num { width: 38px; height: 38px; display: grid; place-items: center; border: 2px solid var(--line); border-radius: 12px; background: var(--accent); font-weight: 900; margin-bottom: 26px; }
+    .panel h3 { margin: 0 0 9px; font-size: 1.15rem; letter-spacing: -.03em; }
+    .panel p { margin: 0; color: var(--muted); font-size: .94rem; }
+    .status-layout { display: grid; grid-template-columns: .78fr 1.22fr; gap: 22px; align-items: stretch; }
+    .status-card { background: var(--accent); }
+    .status-card .state { display: inline-flex; align-items: center; gap: 8px; font-weight: 850; font-size: .78rem; border: 2px solid var(--line); border-radius: 999px; padding: 6px 10px; background: var(--card); }
+    .status-card h3 { font-size: 1.8rem; line-height: 1.1; letter-spacing: -.055em; margin: 24px 0 12px; }
+    .status-card p { color: #3f4935; }
+    .status-list { display: grid; gap: 12px; }
+    .status-item { display: grid; grid-template-columns: 30px 1fr; gap: 13px; padding: 16px 0; border-bottom: 1px solid #d6d5ce; }
+    .status-item:last-child { border-bottom: 0; padding-bottom: 0; }
+    .status-icon { width: 28px; height: 28px; border: 1.5px solid var(--line); border-radius: 9px; display: grid; place-items: center; background: var(--paper); font-weight: 900; font-size: .8rem; }
+    .status-item strong { display: block; font-size: .95rem; margin-bottom: 2px; }
+    .status-item span { color: var(--muted); font-size: .88rem; }
+    .roadmap { display: grid; grid-template-columns: repeat(4, 1fr); gap: 13px; counter-reset: step; }
+    .roadmap-item { padding: 19px; border: 2px solid var(--line); border-radius: 18px; background: var(--card); position: relative; min-height: 190px; }
+    .roadmap-item::before { counter-increment: step; content: "0" counter(step); display: block; font-size: .78rem; font-weight: 900; color: var(--muted); margin-bottom: 28px; }
+    .roadmap-item:not(:last-child)::after { content: "↗"; position: absolute; right: 15px; top: 12px; font-weight: 900; font-size: 1rem; }
+    .roadmap-item h3 { font-size: 1rem; margin: 0 0 8px; }
+    .roadmap-item p { color: var(--muted); font-size: .87rem; margin: 0; }
+    .roadmap-item:first-child { background: var(--blue); }
+    .roadmap-item:last-child { background: var(--pink); }
+    .principles { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .principle { display: flex; align-items: start; gap: 15px; }
+    .principle-mark { flex: 0 0 40px; height: 40px; border: 2px solid var(--line); border-radius: 13px; background: var(--accent); display: grid; place-items: center; font-size: 1.05rem; font-weight: 950; }
+    .principle h3 { margin: 0 0 5px; font-size: 1rem; }
+    .principle p { margin: 0; color: var(--muted); font-size: .9rem; }
+    .cta { padding: 32px; border: 2px solid var(--line); border-radius: 25px; background: var(--ink); color: var(--card); box-shadow: 7px 7px 0 var(--accent-strong); display: flex; align-items: center; justify-content: space-between; gap: 25px; }
+    .cta h2 { max-width: 580px; font-size: clamp(1.8rem, 3.7vw, 2.8rem); }
+    .cta p { color: #c4c7bf; max-width: 540px; margin: 12px 0 0; }
+    .cta .btn { flex-shrink: 0; }
+    footer { padding: 46px 0 120px; color: var(--muted); font-size: .84rem; }
+    .footer-inner { display: flex; justify-content: space-between; gap: 20px; border-top: 1px solid #d3d1c8; padding-top: 22px; }
+    .footer-inner a { text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    .float-nav { position: fixed; z-index: 20; bottom: max(18px, env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 4px; padding: 7px; border: 2px solid var(--line); border-radius: 999px; background: rgba(255,254,250,.94); box-shadow: 5px 5px 0 var(--line); backdrop-filter: blur(14px); max-width: calc(100% - 24px); }
+    .float-nav a { text-decoration: none; font-size: .8rem; font-weight: 800; padding: 10px 15px; border-radius: 999px; white-space: nowrap; color: #4f544c; transition: background .15s, color .15s; }
+    .float-nav a:hover, .float-nav a[aria-current="location"] { background: var(--accent); color: var(--ink); }
+    .float-nav .nav-github { background: var(--ink); color: white; }
+    .float-nav .nav-github:hover { background: #3d433a; color: white; }
+    @media (max-width: 850px) {
+      .hero { grid-template-columns: 1fr; gap: 22px; padding-top: 38px; }
+      .hero-art { min-height: 300px; }
+      .blueprint { max-width: 390px; }
+      .grid { grid-template-columns: 1fr 1fr; }
+      .grid .panel:last-child { grid-column: 1 / -1; }
+      .roadmap { grid-template-columns: 1fr 1fr; }
+      .status-layout { grid-template-columns: 1fr; }
+      .section-head { align-items: start; flex-direction: column; }
+    }
+    @media (max-width: 560px) {
+      .wrap { width: min(100% - 28px, 1120px); }
+      .topbar { padding: 17px 0; }
+      .top-link { font-size: .78rem; padding: 8px 11px; }
+      .hero { padding: 36px 0 55px; }
+      h1 { font-size: clamp(3rem, 15vw, 4.6rem); }
+      .hero-art { min-height: 270px; }
+      .blueprint { width: 92%; border-radius: 23px; }
+      .core { width: 94px; height: 94px; border-radius: 22px; }
+      .core svg { width: 55px; height: 55px; }
+      .tag { font-size: .68rem; padding: 6px 9px; }
+      .section { padding: 43px 0; }
+      .grid, .principles { grid-template-columns: 1fr; }
+      .grid .panel:last-child { grid-column: auto; }
+      .panel { padding: 20px; }
+      .panel-num { margin-bottom: 18px; }
+      .roadmap { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .roadmap-item { min-height: 180px; padding: 15px; }
+      .roadmap-item::before { margin-bottom: 22px; }
+      .cta { padding: 24px 20px; flex-direction: column; align-items: start; }
+      .footer-inner { flex-direction: column; }
+      .float-nav { width: max-content; gap: 1px; padding: 5px; bottom: max(12px, env(safe-area-inset-bottom)); }
+      .float-nav a { font-size: .72rem; padding: 10px 11px; }
+      .float-nav .nav-github { padding-inline: 13px; }
+      footer { padding-bottom: 110px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="wrap topbar">
+    <a class="brand" href="#home" aria-label="ForgeKiln home">
+      <span class="brand-mark" aria-hidden="true">F</span>
+      <span>ForgeKiln</span>
+    </a>
+    <a class="top-link" href="https://github.com/cedricarts/forgekiln_cpp" target="_blank" rel="noreferrer">View repository ↗</a>
+  </header>
+
+  <main>
+    <section class="wrap hero" id="home">
+      <div>
+        <div class="eyebrow"><span class="dot" aria-hidden="true"></span> An engine in the making</div>
+        <h1>Built from<br>the <span class="highlight">foundations.</span></h1>
+        <p class="hero-copy">ForgeKiln is an experimental C++ project exploring how the pieces of a game-development engine fit together. Small systems first. Clear reasoning always. Progress through iteration.</p>
+        <div class="actions">
+          <a class="btn" href="https://github.com/cedricarts/forgekiln_cpp" target="_blank" rel="noreferrer">Explore the code <span aria-hidden="true">↗</span></a>
+          <a class="btn secondary" href="#roadmap">See the direction <span aria-hidden="true">↓</span></a>
+        </div>
+      </div>
+      <div class="hero-art" aria-label="Abstract diagram representing connected engine systems" role="img">
+        <div class="blueprint">
+          <div class="orbit"></div><div class="orbit two"></div>
+          <span class="tag one">INPUT</span><span class="tag two">SYSTEMS</span><span class="tag three">C++ / LEARNING</span>
+          <div class="core">
+            <svg viewBox="0 0 80 80" fill="none" aria-hidden="true">
+              <path d="M15 22h19l7 8h24v29H15z" stroke="#20231f" stroke-width="3.5" stroke-linejoin="round"/>
+              <path d="M24 42h31M24 50h22" stroke="#20231f" stroke-width="3.5" stroke-linecap="round"/>
+              <path d="M25 15v-5m30 5v-5M9 34H4m72 0h-5" stroke="#20231f" stroke-width="3.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="why">
+      <div class="wrap">
+        <div class="section-head">
+          <div><p class="kicker">01 / The reason</p><h2>Understand it.<br>Then build it.</h2></div>
+          <p class="section-intro">Engines can feel like black boxes when you only use the finished tools. ForgeKiln is a way to learn what sits underneath by building and questioning each part.</p>
+        </div>
+        <div class="grid">
+          <article class="panel">
+            <div class="panel-num">01</div>
+            <h3>Learn by making</h3>
+            <p>Turn concepts into small, working experiments instead of treating documentation as something to read once and forget.</p>
+          </article>
+          <article class="panel">
+            <div class="panel-num">02</div>
+            <h3>Keep the pieces clear</h3>
+            <p>Give each system a focused job, understandable interfaces, and room to evolve without unnecessary complexity.</p>
+          </article>
+          <article class="panel">
+            <div class="panel-num">03</div>
+            <h3>Grow through iteration</h3>
+            <p>Expect early ideas to change. Test them, learn from the rough edges, and improve the design when there is a reason to.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="status">
+      <div class="wrap">
+        <div class="section-head">
+          <div><p class="kicker">02 / Right now</p><h2>A small start.<br>A real project.</h2></div>
+          <p class="section-intro">ForgeKiln is at the experimental stage. The goal today is not to claim a complete engine, but to establish reliable foundations and understand the decisions behind them.</p>
+        </div>
+        <div class="status-layout">
+          <article class="panel status-card">
+            <span class="state"><span class="dot" aria-hidden="true"></span> Early development</span>
+            <h3>Currently exploring input handling.</h3>
+            <p>The first experiments use C++ and the Windows API to read keyboard input. The interface and implementation are still evolving.</p>
+          </article>
+          <article class="panel">
+            <div class="status-list">
+              <div class="status-item">
+                <span class="status-icon" aria-hidden="true">✓</span>
+                <div><strong>Repository established</strong><span>Source control and initial project documentation are in place.</span></div>
+              </div>
+              <div class="status-item">
+                <span class="status-icon" aria-hidden="true">↗</span>
+                <div><strong>Input system prototype</strong><span>Testing directional keyboard input and shaping a small interface around it.</span></div>
+              </div>
+              <div class="status-item">
+                <span class="status-icon" aria-hidden="true">…</span>
+                <div><strong>Still being worked out</strong><span>Architecture, build workflow, testing, and future systems have not been finalized.</span></div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="roadmap">
+      <div class="wrap">
+        <div class="section-head">
+          <div><p class="kicker">03 / The direction</p><h2>Where we plan to go.</h2></div>
+          <p class="section-intro">A direction, not a deadline-driven promise. Each step depends on what the previous step teaches us.</p>
+        </div>
+        <div class="roadmap">
+          <article class="roadmap-item"><h3>Stabilize the basics</h3><p>Refine keyboard input, understand key states, and establish a repeatable build-and-test workflow.</p></article>
+          <article class="roadmap-item"><h3>Shape core systems</h3><p>Explore clean interfaces and the boundaries between input, application logic, and other engine parts.</p></article>
+          <article class="roadmap-item"><h3>Connect the pieces</h3><p>Investigate a window and update loop, then learn how systems communicate within a running application.</p></article>
+          <article class="roadmap-item"><h3>Build toward a usable engine</h3><p>As the foundations mature, explore rendering and simple interactive demos. Scope will follow what proves practical.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="how">
+      <div class="wrap">
+        <div class="section-head">
+          <div><p class="kicker">04 / The approach</p><h2>Simple by intention.</h2></div>
+          <p class="section-intro">The point is not to make the biggest engine or to recreate every feature in an established tool. It is to make thoughtful progress and understand what gets built.</p>
+        </div>
+        <div class="panel">
+          <div class="principles">
+            <div class="principle"><span class="principle-mark" aria-hidden="true">S</span><div><h3>Simple over complex</h3><p>Prefer the smallest design that solves the problem well.</p></div></div>
+            <div class="principle"><span class="principle-mark" aria-hidden="true">I</span><div><h3>Iteration over perfection</h3><p>Make a useful first version, test it, and improve it with evidence.</p></div></div>
+            <div class="principle"><span class="principle-mark" aria-hidden="true">U</span><div><h3>Understanding over shortcuts</h3><p>Use tools to help, but make sure the decisions and code remain understandable.</p></div></div>
+            <div class="principle"><span class="principle-mark" aria-hidden="true">P</span><div><h3>Practicality over hype</h3><p>Choose features based on what the project needs, not what sounds impressive.</p></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="cta">
+          <div><p class="kicker" style="color:#b7f36b">Follow the work</p><h2>The best way forward is one system at a time.</h2><p>Browse the source, follow development, report an issue, or contribute through the repository guidelines.</p></div>
+          <a class="btn" href="https://github.com/cedricarts/forgekiln_cpp" target="_blank" rel="noreferrer">Open GitHub ↗</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="wrap">
+    <div class="footer-inner">
+      <span>© 2026 Cedric Arts · ForgeKiln</span>
+      <span>Experimental software, built in public. <a href="https://github.com/cedricarts/forgekiln_cpp/blob/main/LICENSE">MIT License</a></span>
+    </div>
+  </footer>
+
+  <nav class="float-nav" aria-label="Main navigation">
+    <a href="#home" aria-current="location">Home</a>
+    <a href="#why">Why</a>
+    <a href="#status">Status</a>
+    <a href="#roadmap">Roadmap</a>
+    <a href="#how">How</a>
+    <a class="nav-github" href="https://github.com/cedricarts/forgekiln_cpp" target="_blank" rel="noreferrer" aria-label="ForgeKiln on GitHub">GitHub ↗</a>
+  </nav>
+  <script>
+    const sections = [...document.querySelectorAll("main section[id]")];
+    const navLinks = [...document.querySelectorAll(".float-nav a[href^='#']")];
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          navLinks.forEach(link => {
+            if (link.getAttribute("href") === "#" + entry.target.id) {
+              link.setAttribute("aria-current", "location");
+            } else {
+              link.removeAttribute("aria-current");
+            }
+          });
+        });
+      }, { rootMargin: "-30% 0px -60% 0px", threshold: 0 });
+      sections.forEach(section => observer.observe(section));
+    }
+  </script>
+</body>
+</html>
